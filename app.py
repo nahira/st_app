@@ -17,16 +17,16 @@ data = {
 df = pd.DataFrame(data)
 df = df.set_index("ID")
 
-# Título centrado en la barra lateral
+# Mostrar el logo en su tamaño original con el texto "DAJ" al lado en la barra lateral
 st.sidebar.markdown(
     """
-    <h1 style="text-align: center;">DAJ</h1>
+    <div style="display: flex; align-items: center;">
+        <img src="logo.png" style="margin-right: 10px;">
+        <h1 style="margin: 0;">DAJ</h1>
+    </div>
     """,
     unsafe_allow_html=True,
 )
-
-# Mostrar el logo de forma original en la barra lateral
-st.sidebar.image("logo.png")
 
 # Opciones de navegación con emojis
 options = {
@@ -45,16 +45,34 @@ if options[page] == "Consultas":
     st.title("Consultas")
 
     # Botón para cargar un nuevo caso alineado a la derecha
-    st.markdown(
-        """
-        <div style="display: flex; justify-content: flex-end;">
-            <button style="padding: 8px 16px; border-radius: 4px; background-color: #007bff; color: white; border: none; cursor: pointer;">
-                Cargar nuevo caso
-            </button>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    if st.button("Cargar nuevo caso"):
+        with st.form("new_case_form"):
+            st.write("Ingrese los detalles del nuevo caso:")
+            caratula = st.text_input("Carátula (Nombre y Apellido)")
+            dni = st.text_input("DNI")
+            telefono = st.text_input("Teléfono")
+            fecha_ingreso = st.date_input("Fecha de Ingreso")
+            estado = st.selectbox("Estado", ["Abierto", "Cerrado", "En Progreso"])
+            equipo_a_cargo = st.text_input("Equipo a Cargo")
+            dependencia_a_cargo = st.text_input("Dependencia a Cargo")
+            submit_button = st.form_submit_button(label="Guardar")
+
+            if submit_button:
+                # Agregar el nuevo registro al DataFrame
+                new_id = df.index.max() + 1
+                new_data = {
+                    "ID": new_id,
+                    "Carátula": caratula,
+                    "DNI": dni,
+                    "Teléfono": telefono,
+                    "Fecha de Ingreso": fecha_ingreso,
+                    "Estado": estado,
+                    "Equipo a Cargo": equipo_a_cargo,
+                    "Dependencia a Cargo": dependencia_a_cargo,
+                }
+                df = df.append(new_data, ignore_index=True)
+                df = df.set_index("ID")
+                st.success("Nuevo caso agregado exitosamente!")
 
     search_term = st.text_input("Buscar por nombre, apellido o DNI:")
 
